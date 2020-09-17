@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+						   http://www.springframework.org/schema/beans/spring-beans.xsd
+						   http://www.springframework.org/schema/context
+						   http://www.springframework.org/schema/context/spring-context.xsd
+						   http://www.springframework.org/schema/rabbit
+						   http://www.springframework.org/schema/rabbit/spring-rabbit.xsd">
+
+    <!--加载配置文件-->
+    <context:property-placeholder location="classpath:rabbitmq.properties"/>
+
+    <!--定义rabbitmq连接工厂，connectionFactory-->
+    <rabbit:connection-factory id="connectionFactory" host="${rabbitmq.host}"
+                               port="${rabbitmq.port}"
+                               username="${rabbitmq.username}"
+                               password="${rabbitmq.password}"
+                               virtual-host="${rabbitmq.virtual-host}"
+                               publisher-confirms="true"
+                               publisher-returns="true"/>
+
+    <!--定义管理交换机，队列-->
+    <rabbit:admin connection-factory="connectionFactory"/>
+
+    <!--定义rabbitTemplate操作对象，可以在代码中方便的发送消息-->
+    <rabbit:template id="rabbitTemplate" connection-factory="connectionFactory"/>
+
+
+    <!--Hello World模式，默认交换机-->
+    <!--定义持久化队列，若不存在则自动创建，
+        若不指定交换机则使用Hello World模式绑定到默认的交换机，默认交换机名字为""，路由键为队列名称-->
+    <rabbit:queue id="spring_queue" name="spring_queue" auto-declare="true"/>
+
+
+    <!--Pub/Sub模式，fanout交换机-->
+    <!--定义持久化队列，不存在则自动创建-->
+    <rabbit:queue id="spring_fanout_queue_1" name="spring_fanout_queue_1" auto-declare="true"/>
+    <rabbit:queue id="spring_fanout_queue_2" name="spring_fanout_queue_2" auto-declare="true"/>
+    <!--定义fanout类型交换机-->
+    <rabbit:fanout-exchange  id= "spring_fanout_exchange" name="spring_fanout_exchange" auto-declare="true">
+        <rabbit:bindings>
+            <rabbit:binding queue="spring_fanout_queue_1"/>
+            <rabbit:binding queue="spring_fanout_queue_2"/>
+        </rabbit:bindings>
+    </rabbit:fanout-exchange>
+
+    <!--Topics模式，Topics交换机-->
+    <!--定义持久化队列，不存在则自动创建-->
+    <rabbit:queue id="spring_topics_queue_star" name="spring_topics_queue_star" auto-declare="true"/>
+    <rabbit:queue id="spring_topics_queue_well" name="spring_topics_queue_well" auto-declare="true"/>
+    <rabbit:queue id="spring_topics_queue_well2" name="spring_topics_queue_well2" auto-declare="true"/>
+    <!--定义topics类型交换机-->
+    <rabbit:topic-exchange id="spring_topics_exchange" name="spring_topics_exchange" auto-declare="true">
+        <rabbit:bindings>
+            <rabbit:binding pattern="heima.*" queue="spring_topics_queue_star"></rabbit:binding>
+            <rabbit:binding pattern="heima.#" queue="spring_topics_queue_well"></rabbit:binding>
+            <rabbit:binding pattern="itcast.#" queue="spring_topics_queue_well2"></rabbit:binding>
+        </rabbit:bindings>
+    </rabbit:topic-exchange>
+
+</beans>

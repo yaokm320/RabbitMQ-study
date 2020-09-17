@@ -50,8 +50,8 @@ public class ProducerWorkQueues {
             /*
              * basicPublish(String exchange, String routingKey, BasicProperties props, byte[] body)
              * 参数：
-             *   exchange:交换机的名称，简单模式下，会使用默认的交换机
-             *   routineKey：路由名称
+             *   exchange:交换机的名称，简单模式下，会使用默认的交换机，默认交换机的名称为""
+             *   routingKey：路由键
              *   props：配置信息
              *   body：发送消息数据
              * */
