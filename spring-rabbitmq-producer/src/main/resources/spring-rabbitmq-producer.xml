@@ -14,6 +14,7 @@
     <context:property-placeholder location="classpath:rabbitmq.properties"/>
 
     <!--定义rabbitmq连接工厂，connectionFactory-->
+    <!--在连接参数里面测试发布确认和发布回退-->
     <rabbit:connection-factory id="connectionFactory" host="${rabbitmq.host}"
                                port="${rabbitmq.port}"
                                username="${rabbitmq.username}"
@@ -58,6 +59,42 @@
             <rabbit:binding pattern="heima.*" queue="spring_topics_queue_star"></rabbit:binding>
             <rabbit:binding pattern="heima.#" queue="spring_topics_queue_well"></rabbit:binding>
             <rabbit:binding pattern="itcast.#" queue="spring_topics_queue_well2"></rabbit:binding>
+        </rabbit:bindings>
+    </rabbit:topic-exchange>
+
+    <!--
+    死信队列步骤：
+    1、声明正常的队列（test_queue_dlx）和交换机(test_exchange_dlx)并进行绑定
+    2、声明死信队列（queue_dlx）和死信交换机(exchange_dlx)并进行绑定
+    3、将正常的队列和死信交换机进行绑定
+    -->
+
+    <!--1、声明正常的队列（test_queue_dlx）和交换机(test_exchange_dlx)并进行绑定-->
+    <rabbit:queue id="test_queue_dlx" name="test_queue_dlx">
+        <!--3、将正常的队列和死信交换机进行绑定-->
+        <rabbit:queue-arguments>
+            <!--3.1 设置绑定的死信交换机名称：x-dead-letter-exchange-->
+            <entry key="x-dead-letter-exchange" value="exchange_dlx"/>
+            <!--3.2 设置发送给死信交换机的路由key：x-dead-letter-routing-key-->
+            <entry key="x-dead-letter-routing-key" value="dlx.#"/>
+            <!--4.1 设置队列的过期时间ttl,用来测试死信队列-->
+            <entry key="x-message-ttl" value="10000" value-type="java.lang.Integer"/>
+            <!--4.2 设置队列的长度限制，max-length-->
+            <entry key="x-max-length" value="10" value-type="java.lang.Integer"/>
+        </rabbit:queue-arguments>
+    </rabbit:queue>
+    <rabbit:topic-exchange name="test_exchange_dlx">
+        <rabbit:bindings>
+            <rabbit:binding pattern="test.dlx.#" queue="test_queue_dlx"></rabbit:binding>
+        </rabbit:bindings>
+    </rabbit:topic-exchange>
+
+
+    <!--2、声明死信队列（queue_dlx）和死信交换机(exchange_dlx)并进行绑定-->
+    <rabbit:queue id="queue_dlx" name="queue_dlx"></rabbit:queue>
+    <rabbit:topic-exchange name="exchange_dlx">
+        <rabbit:bindings>
+            <rabbit:binding pattern="dlx.#" queue="queue_dlx"></rabbit:binding>
         </rabbit:bindings>
     </rabbit:topic-exchange>
 

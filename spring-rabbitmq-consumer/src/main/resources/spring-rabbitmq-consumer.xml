@@ -20,21 +20,17 @@
                                password="${rabbitmq.password}"
                                virtual-host="${rabbitmq.virtual-host}"/>
 
-    <bean id="springQueueListener" class="com.example.rabbitmq.listener.SpringQueueListener"/>
-    <bean id="fanoutListener1" class="com.example.rabbitmq.listener.FanoutListener1"/>
-    <bean id="fanoutListener2" class="com.example.rabbitmq.listener.FanoutListener2"/>
-    <bean id="topicsListenerStar" class="com.example.rabbitmq.listener.TopicsListenerStar"/>
-    <bean id="topicsListenerWell" class="com.example.rabbitmq.listener.TopicsListenerWell"/>
-    <bean id="topicsListenerWell2" class="com.example.rabbitmq.listener.TopicsListenerWell2"/>
+    <!--配置组件扫描-->
+    <context:component-scan base-package="com.example.rabbitmq.listener"/>
 
     <!--监听器容器-->
     <rabbit:listener-container connection-factory="connectionFactory" auto-declare="true">
-<!--        <rabbit:listener ref="springQueueListener" queue-names="spring_queue"/>-->
-<!--        <rabbit:listener ref="fanoutListener1" queue-names="spring_fanout_queue_1"/>-->
-<!--        <rabbit:listener ref="fanoutListener2" queue-names="spring_fanout_queue_2"/>-->
-<!--        <rabbit:listener ref="topicsListenerStar" queue-names="spring_topics_queue_star"/>-->
+        <rabbit:listener ref="springQueueListener" queue-names="spring_queue"/>
+        <rabbit:listener ref="fanoutListener1" queue-names="spring_fanout_queue_1"/>
+        <rabbit:listener ref="fanoutListener2" queue-names="spring_fanout_queue_2"/>
+        <rabbit:listener ref="topicsListenerStar" queue-names="spring_topics_queue_star"/>
         <rabbit:listener ref="topicsListenerWell" queue-names="spring_topics_queue_well"/>
-<!--        <rabbit:listener ref="topicsListenerWell2" queue-names="spring_topics-queue_well2"/>-->
+        <rabbit:listener ref="topicsListenerWell2" queue-names="spring_topics-queue_well2"/>
     </rabbit:listener-container>
 
 </beans>
